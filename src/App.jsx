@@ -1,75 +1,84 @@
-import React, {useEffect, useRef,useState} from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import TrustedBy from './components/TrustedBy'
 import Services from './components/Services'
 import OurWork from './components/OurWork'
-import Team from './components/Team'
+import Team from './components/team'
 import ContactUs from './components/ContactUs'
 import { Toaster } from 'react-hot-toast'
 import Footer from './components/Footer'
 
-
 const App = () => {
+  const [theme, setTheme] = useState(
+    localStorage.getItem('theme') ? localStorage.getItem('theme') : 'light'
+  )
 
- const[theme, setTheme] = useState(localStorage.getItem('theme') ? localStorage.getItem('theme') : 'light',)
-   
-  
-  const dotRef = useRef(null);
-  const outlineRef = useRef(null);
-  
-  // custom cursor logic
-  const mouse=useRef({x:0,y:0});
-  const position=useRef({x:0,y:0});
-  
+  const dotRef = useRef(null)
+  const outlineRef = useRef(null)
+
+  const mouse = useRef({ x: 0, y: 0 })
+  const position = useRef({ x: 0, y: 0 })
+
+  // Detect if device is touch-based (mobile/tablet)
+  const isMobile = window.matchMedia('(pointer: coarse)').matches
+
   useEffect(() => {
+    if (isMobile) return // skip custom cursor logic for mobile devices
+
     const handleMouseMove = (e) => {
       mouse.current.x = e.clientX
       mouse.current.y = e.clientY
-
     }
 
     document.addEventListener('mousemove', handleMouseMove)
+
     const animate = () => {
-      position.current.x += (mouse.current.x - position.current.x) * 0.1;
-      position.current.y += (mouse.current.y - position.current.y) * 0.1;
+      position.current.x += (mouse.current.x - position.current.x) * 0.1
+      position.current.y += (mouse.current.y - position.current.y) * 0.1
 
       if (dotRef.current && outlineRef.current) {
-        dotRef.current.style.transform = `translate3d(${mouse.current.x - 6}px, ${mouse.current.y - 6}px, 0)`;
-        outlineRef.current.style.transform = `translate3d(${position.current.x - 20}px, ${position.current.y - 20}px, 0)`;
+        dotRef.current.style.transform = `translate3d(${mouse.current.x - 6}px, ${mouse.current.y - 6}px, 0)`
+        outlineRef.current.style.transform = `translate3d(${position.current.x - 20}px, ${position.current.y - 20}px, 0)`
       }
+
       requestAnimationFrame(animate)
     }
+
     animate()
+
     return () => document.removeEventListener('mousemove', handleMouseMove)
-  }, [])
- 
+  }, [isMobile])
+
   return (
-    <div className='dark:bg-black relative overflow-hidden'>
-      <Toaster/>
+    <div className="dark:bg-black relative overflow-hidden">
+      <Toaster />
       <Navbar theme={theme} setTheme={setTheme} />
-      <Hero />  {/*how to mount Hero component here?*/}
-      <TrustedBy /> {/*how to mount TrustedBy component here?*/}
+      <Hero />
+      <TrustedBy />
       <Services />
       <OurWork />
-      {/* <Team /> */}
       <Team />
-      {/* <ContactUs /> */}
       <ContactUs />
       <Footer theme={theme} />
 
-      {/* custom cursor ring */}
-      <div ref={outlineRef} className='fixed top-0 left-0 h-10 w-10 rounded-full border border-bluish dark:border-dark pointer-events-none z-[9999]' style={{transition: 'transform 0.1s ease-out'}}>
+      {/* Render custom cursor only on non-mobile devices */}
+      {!isMobile && (
+        <>
+          <div
+            ref={outlineRef}
+            className="fixed top-0 left-0 h-10 w-10 rounded-full border border-bluish dark:border-dark pointer-events-none z-[9999]"
+            style={{ transition: 'transform 0.1s ease-out' }}
+          ></div>
 
-      </div>
-{/*custom cursor dot  */}
-      <div  ref={dotRef} className='fixed top-0 left-0 h-3 w-3 rounded-full bg-bluish dark:bg-dark pointer-events-none z-[9999]'>
-
-      </div>
+          <div
+            ref={dotRef}
+            className="fixed top-0 left-0 h-3 w-3 rounded-full bg-bluish dark:bg-dark pointer-events-none z-[9999]"
+          ></div>
+        </>
+      )}
     </div>
-
   )
 }
-
 
 export default App
